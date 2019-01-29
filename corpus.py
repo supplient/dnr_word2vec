@@ -3,35 +3,48 @@ from readBasicData import readBasicData
 
 import config
 
-def addField(db_data):
-    res = []
-    for d in db_data:
+class Corpus:
+    @classmethod
+    def addFieldForSingle(cls, d):
         line_res = {}
         field = config.origin_field
         if len(field) != len(d):
             raise Exception("field number: " + str(len(field)) + " != line of data number: " + str(len(d)))
         for i in range(len(field)):
             line_res[field[i]] = d[i]
-        res.append(line_res)
-    return res
+        return line_res
 
-def keywords2sentence(keywords):
-    return keywords.split("||")
+    @classmethod
+    def addFieldForMulti(cls, db_data):
+        res = []
+        for d in db_data:
+            line_res = Corpus.addFieldForSingle(d)
+            res.append(line_res)
+        return res
 
-class Corpus:
+    @classmethod
+    def keywords2sentence(cls, keywords):
+        return keywords.split("||")
+
     @classmethod
     def line2sentence(cls, line):
         keywords = line["keyword_cn"]
-        return keywords2sentence(keywords)
+        return Corpus.keywords2sentence(keywords)
 
     def __init__(self):
         self.db = readBasicData()
         self.db.search()
 
+    def fetchOriginLines(self, size):
+        res = self.db.readManyData(size)
+        while not res is None:
+            yield res
+            res = self.db.readManyData(size)
+
     def fetchLines(self, size):
         res = self.db.readManyData(size)
         while not res is None:
-            yield addField(res)
+            yield Corpus.addFieldForMulti(res)
             res = self.db.readManyData(size)
 
     def fetchSentences(self, size):
