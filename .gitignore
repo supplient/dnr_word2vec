@@ -1,0 +1,6 @@
+*.sql
+*.model
+*.log
+__pycache__
+output
+model
