@@ -1,15 +1,10 @@
 import pymysql
-
-host = "localhost"
-user = "root"
-password = "000000"
-databse = "fengrucup"
-
+from db_config import *
 
 class readBasicData:
 
     def __init__(self):
-        self.db = pymysql.connect(host=host, user=user, password=password, database=databse);
+        self.db = pymysql.connect(host=host, user=user, password=password, database=database)
         self.cursor = self.db.cursor()
         self.cur_start = 0
         self.step = 10000

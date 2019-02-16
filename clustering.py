@@ -4,6 +4,7 @@ import config
 import pymysql
 
 from gen_spec_vec import SpecVecGen
+from db_config import *
 
 from numpy import *
 
@@ -12,11 +13,6 @@ DataGrip Init:
 CREATE VIEW id_authors AS SELECT id, author_cn FROM journal_all_1_5
 CREATE VIEW id_keywords AS SELECT id, keyword_cn FROM journal_all_1_5
 '''
-
-host = "localhost"
-user = "root"
-password = "******"
-database = "fengrubei"
 
 
 def dict_append(dict, key, element):
