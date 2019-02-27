@@ -7,6 +7,7 @@ from gen_spec_vec import SpecVecGen
 from db_config import *
 
 from numpy import *
+from sklearn.cluster import KMeans
 
 def dict_append(dict, key, element):
     if key not in dict:
@@ -19,27 +20,17 @@ def clustering(vecs):
 
     n = len(vecs)
 
-    #divide the space, this part can be replaced by kmeans
-    sp = []
-    for i in range(100):
-        sp.append([vecs[0][i], vecs[0][i]])
-    for vec in vecs:
-        for i in range(100):
-            sp[i][0] = min(sp[i][0], vec[i])
-            sp[i][1] = max(sp[i][1], vec[i])
-
-    M = n / (log(n + 1) * 80)
-    m = []
-    for i in range(100):
-        m.append((sp[i][1] - sp[i][0] + eps) / M)
-
-    #grid records which element belongs to which part
+    mylog.log.debug("clustering.STARTED: Divide the space by kmeans")
+    #divide the space by kmeans
     grid = {}
+
+    kmeans_k = n//4 # TODO Maybe a better k
+    if kmeans_k < 1:
+        kmeans_k = 1
+    kmeans = KMeans(kmeans_k).fit(vecs)
+
     for i in range(n):
-        v = []
-        for j in range(100):
-            v.append((vecs[i][j] - sp[j][0] + eps) // m[j])
-        dict_append(grid, tuple(v), i)
+        dict_append(grid, kmeans.labels_[i], i)
     k = len(grid)
 
     if k == 1:
@@ -47,6 +38,7 @@ def clustering(vecs):
         for i in range(n):
             ret.append(i)
         return [ret]
+    mylog.log.debug("clustering.FINISHED: Divide the space by kmeans")
 
     #using cendroid of each part to clustering
     p = []
@@ -84,7 +76,7 @@ def clustering(vecs):
             diss.append(dis(rt, i))
 
     diss.sort()
-    r0 = diss[int(floor(len(diss) * 0.73))]
+    r0 = diss[int(floor(len(diss) * 0.40))]
 
     u = rt
 
