@@ -8,13 +8,6 @@ from db_config import *
 
 from numpy import *
 
-'''
-DataGrip Init:
-CREATE VIEW id_authors AS SELECT id, author_cn FROM journal_all_1_5
-CREATE VIEW id_keywords AS SELECT id, keyword_cn FROM journal_all_1_5
-'''
-
-
 def dict_append(dict, key, element):
     if key not in dict:
         dict[key] = []
@@ -152,38 +145,45 @@ if __name__ == '__main__':
     spec_vec_gen = SpecVecGen(config.model_path)
     mylog.log.info('FINISHED: Loading Model')
 
-    slt_paper = 'SELECT * FROM id_authors'
-    mylog.log.info('STARTED: ' + slt_paper)
-    cursor.execute(slt_paper)
-    mylog.log.info('FINISHED: ' + slt_paper)
+    id_authors = ['id_author_1', 'id_author_2', 'id_author_3']
+    for id_author in id_authors:
+        slt_paper = 'SELECT * FROM ' + id_author
+        mylog.log.info('STARTED: ' + slt_paper)
+        cursor.execute(slt_paper)
+        mylog.log.info('FINISHED: ' + slt_paper)
 
-    mylog.log.info('STARTED: divide papers to authors')
-    while True:
-        paper = cursor.fetchone()
-        if paper is None:
-            break
-        id = paper[0]
-        author_cn = paper[1]
-        authors = author_cn.split('||')
-        for author in authors:
-            if author == '':
-                continue
-            dict_append(author2papers, author, id)
-    mylog.log.info('FINISHED: divide papers to authors')
+        mylog.log.info('STARTED: divide papers to authors')
+        while True:
+            paper = cursor.fetchone()
+            if paper is None:
+                break
+            id = paper[0]
+            author_cn = paper[1]
+            authors = author_cn.split('||')
+            for author in authors:
+                if author == '':
+                    continue
+                dict_append(author2papers, author, id)
+        mylog.log.info('FINISHED: divide papers to authors')
 
     mylog.log.info('STARTED: Clustering')
 
     json_out = []
 
-    cnt = 0
+    id_keywords = ['id_keyword_1', 'id_keyword_2', 'id_keyword_3']
     for author, papers in author2papers.items():
         vecs = []
         for id in papers:
-            slt_paper = 'SELECT keyword_cn FROM id_keywords WHERE id=\'' + id + '\''
-            cursor.execute(slt_paper)
-            keyword_cn = cursor.fetchone()[0]
-            keywords = keyword_cn.split('||')
-            vecs.append(array(spec_vec_gen.sentence2spec_vec(keywords)))
+            for id_keyword in id_keywords:
+                slt_paper = 'SELECT keyword_cn FROM ' + id_keyword + ' WHERE id=\'' + id + '\''
+                cursor.execute(slt_paper)
+                tmp = cursor.fetchone()
+                if not tmp:
+                    continue
+                keyword_cn = tmp[0]
+                keywords = keyword_cn.split('||')
+                vecs.append(array(spec_vec_gen.sentence2spec_vec(keywords)))
+                break
         #vecs are word2vec of papers, whose order is as same as the papers
         ret = clustering(vecs)
         element = [author, len(ret)]
@@ -193,10 +193,6 @@ if __name__ == '__main__':
                 vec.append(papers[i])
             element.append(vec)
         json_out.append(element)
-        cnt += 1
-        #solve first 100 authors
-        if cnt == 100:
-            break
 
     with open(config.output_path, "w", encoding='utf-8') as fd:
         json.dump(json_out, fd)
