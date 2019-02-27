@@ -12,7 +12,8 @@ class readBasicData:
         self.sum = 1060676
 
     def search(self):
-        sql_select = "select * from journal_all_1_5 limit " + str(self.cur_start) + "," + str(self.step)
+        all_tables = ", ".join(table_list)
+        sql_select = "select keyword_cn from " + all_tables + " limit " + str(self.cur_start) + "," + str(self.step)
         self.cursor.execute(sql_select)
 
     def readOneData(self):

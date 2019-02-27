@@ -5,7 +5,7 @@ log_path = os.path.join(cfp, "log")
 model_path = os.path.join(os.path.join(cfp, "model"), "word2vec.model")
 output_path = os.path.join(os.path.join(cfp, "output"), "word.json")
 
-origin_field = ["id", "source_url", "download_url", "title_cn", "title_en", "brief_cn", "brief_en", "classification_s", "doi_s", "author_cn", "author_en", "organization_each_cn", "organizations_simple_cn", "organization_detail_cn", "first_authors_cn", "journal_cn", "journal_en", "year_s", "issue_s", "keyword_cn", "keyword_en", "publication_date", "found_cn", "author_firstworkplace"]
+origin_field = ["keyword_cn"]
 
 per_progress = 1000
 

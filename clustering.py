@@ -83,7 +83,7 @@ def clustering(vecs):
             diss.append(dis(rt, i))
 
     diss.sort()
-    r0 = diss[int(floor(len(diss) * 0.73))]
+    r0 = diss[int(floor(len(diss) * 0.40))]
 
     u = rt
 
@@ -144,7 +144,8 @@ if __name__ == '__main__':
     spec_vec_gen = SpecVecGen(config.model_path)
     mylog.log.info('FINISHED: Loading Model')
 
-    slt_paper = 'SELECT * FROM id_authors'
+    all_tables = ", ".join(table_list)
+    slt_paper = 'SELECT id, author_cn FROM ' + all_tables
     mylog.log.info('STARTED: ' + slt_paper)
     cursor.execute(slt_paper)
     mylog.log.info('FINISHED: ' + slt_paper)
@@ -171,7 +172,7 @@ if __name__ == '__main__':
     for author, papers in author2papers.items():
         vecs = []
         for id in papers:
-            slt_paper = 'SELECT keyword_cn FROM id_keywords WHERE id=\'' + id + '\''
+            slt_paper = 'SELECT id, keyword_cn FROM ' + all_tables + ' WHERE id=\'' + id + '\''
             cursor.execute(slt_paper)
             keyword_cn = cursor.fetchone()[0]
             keywords = keyword_cn.split('||')
@@ -187,8 +188,8 @@ if __name__ == '__main__':
         json_out.append(element)
         cnt += 1
         #solve first 100 authors
-        if cnt == 100:
-            break
+        #if cnt == 100:
+            #break
 
     with open(config.output_path, "w", encoding='utf-8') as fd:
         json.dump(json_out, fd)
