@@ -145,7 +145,7 @@ if __name__ == '__main__':
     spec_vec_gen = SpecVecGen(config.model_path)
     mylog.log.info('FINISHED: Loading Model')
 
-    id_authors = ['id_author_1', 'id_author_2', 'id_author_3']
+    id_authors = ['id_author_1', 'id_author_2']
     for id_author in id_authors:
         slt_paper = 'SELECT * FROM ' + id_author
         mylog.log.info('STARTED: ' + slt_paper)
@@ -170,7 +170,11 @@ if __name__ == '__main__':
 
     json_out = []
 
-    id_keywords = ['id_keyword_1', 'id_keyword_2', 'id_keyword_3']
+    total = len(author2papers)
+
+    cnt = 0
+
+    id_keywords = ['id_keyword_1', 'id_keyword_2']
     for author, papers in author2papers.items():
         vecs = []
         for id in papers:
@@ -193,6 +197,9 @@ if __name__ == '__main__':
                 vec.append(papers[i])
             element.append(vec)
         json_out.append(element)
+        cnt += 1
+        if cnt % 100 == 0:
+            mylog.log.info('Clustering: %f%%'%(1. * cnt / total))
 
     with open(config.output_path, "w", encoding='utf-8') as fd:
         json.dump(json_out, fd)
