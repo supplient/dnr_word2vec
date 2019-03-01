@@ -4,24 +4,27 @@ from db_config import *
 class readBasicData:
 
     def __init__(self):
-        self.db = pymysql.connect(host=host, user=user, password=password, database=database)
+        self.db = pymysql.connect(host=host, user=user, password=password, database=databse);
         self.cursor = self.db.cursor()
-        self.cur_start = 0
-        self.step = 10000
-        #调整step，每次读入多少行数据
-        self.sum = 1060676
+        self.table = "id_keyword_1"
+        self.table_cnt =0
+
 
     def search(self):
-        sql_select = "select * from journal_all_1_5 limit " + str(self.cur_start) + "," + str(self.step)
+        sql_select = "select keyword_cn from "+self.table
         self.cursor.execute(sql_select)
+
 
     def readOneData(self):
         result = self.cursor.fetchone()
         if result is None:
-            self.cur_start = self.cur_start+self.step
-            if self.cur_start > self.sum:
-                return None
-
+            if self.table_cnt==0:
+                self.table = "id_keyword_2"
+            else:
+                if self.table_cnt==1:
+                    self.table = "id_keyword_3"
+                else:
+                    return None
             self.search()
             return self.cursor.fetchone()
         else:
@@ -30,9 +33,14 @@ class readBasicData:
     def readManyData(self, size):
         result = self.cursor.fetchmany(size)
         if result == ():
-            self.cur_start = self.cur_start + self.step
-            if self.cur_start > self.sum:
-                return None
+            if self.table_cnt == 0:
+                self.table = "id_keyword_2"
+
+            else:
+                if self.table_cnt == 1:
+                    self.table = "id_keyword_3"
+                else:
+                    return None
             self.search()
             return self.cursor.fetchmany(size)
         else:
