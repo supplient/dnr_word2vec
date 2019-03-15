@@ -2,12 +2,13 @@ from mylog import log
 from readBasicData import readBasicData
 
 import config
+import db_config
 
 class Corpus:
     @classmethod
     def addFieldForSingle(cls, d):
         line_res = {}
-        field = config.origin_field
+        field = db_config.origin_field
         if len(field) != len(d):
             raise Exception("field number: " + str(len(field)) + " != line of data number: " + str(len(d)))
         for i in range(len(field)):
@@ -28,7 +29,7 @@ class Corpus:
 
     @classmethod
     def line2sentence(cls, line):
-        keywords = line["keyword_cn"]
+        keywords = line[db_config.column_keyword]
         return Corpus.keywords2sentence(keywords)
 
     def __init__(self):

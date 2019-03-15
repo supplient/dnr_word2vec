@@ -4,27 +4,32 @@ from db_config import *
 class readBasicData:
 
     def __init__(self):
-        self.db = pymysql.connect(host=host, user=user, password=password, database=databse);
+        self.db = pymysql.connect(host=host, user=user, password=password, database=database)
         self.cursor = self.db.cursor()
-        self.table = "id_keyword_1"
-        self.table_cnt =0
+        self.table_list = table_list
+        self.table_cnt = 0
+
+        if len(table_list) < 1:
+            raise Exception("Too few tables to search")
+        self.table = table_list[0]
 
 
     def search(self):
-        sql_select = "select keyword_cn from "+self.table
+        sql_select = "select " + column_keyword + " from " + self.table
         self.cursor.execute(sql_select)
 
-
     def readOneData(self):
+        if self.table == None:
+            return None
+
         result = self.cursor.fetchone()
         if result is None:
-            if self.table_cnt==0:
-                self.table = "id_keyword_2"
-            else:
-                if self.table_cnt==1:
-                    self.table = "id_keyword_3"
-                else:
-                    return None
+            # Change to next table
+            self.table_cnt += 1 
+            if self.table_cnt >= len(self.table_list):
+                self.table = None
+                return None
+            self.table = self.table_list[self.table_cnt]
             self.search()
             return self.cursor.fetchone()
         else:
@@ -33,14 +38,12 @@ class readBasicData:
     def readManyData(self, size):
         result = self.cursor.fetchmany(size)
         if result == ():
-            if self.table_cnt == 0:
-                self.table = "id_keyword_2"
-
-            else:
-                if self.table_cnt == 1:
-                    self.table = "id_keyword_3"
-                else:
-                    return None
+            # Change to next table
+            self.table_cnt += 1 
+            if self.table_cnt >= len(self.table_list):
+                self.table = None
+                return None
+            self.table = self.table_list[self.table_cnt]
             self.search()
             return self.cursor.fetchmany(size)
         else:
@@ -59,5 +62,4 @@ if __name__ == "__main__":
     while a is not None:
         sum = sum + 1000
         print("sum:",sum)
-        print("cur_start:",x.cur_start)
         a= x.readManyData(1000)

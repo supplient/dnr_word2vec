@@ -5,12 +5,10 @@ log_path = os.path.join(cfp, "log")
 model_path = os.path.join(os.path.join(cfp, "model"), "word2vec.model")
 output_path = os.path.join(os.path.join(cfp, "output"), "word.json")
 
-origin_field = ["keyword_cn"]
-
 per_progress = 1000
 
 per_lines_corpus = 1000
-max_lines_corpus = -1
+max_lines_corpus = 100
 
 size = 100
 window = 10

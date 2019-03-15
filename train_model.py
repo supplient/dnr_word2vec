@@ -45,7 +45,6 @@ if __name__ == "__main__":
             log.info("Trained " + str(count) + " lines...")
     log.info("Training finished, used " + str(count) + " lines of corpus.")
 
-    print(model.wv.similar_by_word(u"化疗药物"))
     # save model
     log.info("Saving model...")
     model.save(config.model_path)
